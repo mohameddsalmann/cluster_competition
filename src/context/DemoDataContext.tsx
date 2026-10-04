@@ -31,6 +31,8 @@ import {
 export type DirectoryKind = 'pharmacies' | 'suppliers' | 'customers' | 'partners';
 export type DirectoryRecord = PharmacyDirectoryItem | SupplierDirectoryItem | CustomerDirectoryItem | PartnerDirectoryItem;
 
+import { SUPPLIER_STORES } from '../data/portalData';
+
 interface ToastMessage {
   id: string;
   type: 'success' | 'info' | 'warning' | 'error';
@@ -103,6 +105,9 @@ interface DemoDataContextType {
 
   saveDirectoryRecord: (kind: DirectoryKind, record: DirectoryRecord) => void;
 
+  supplierStores: typeof SUPPLIER_STORES;
+  toggleSupplierStoreStatus: (id:string) => void;
+
   // Global State Helpers
   toasts: ToastMessage[];
   showToast: (type: ToastMessage['type'], title: string, message: string) => void;
@@ -139,7 +144,8 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [extractedLogs, setExtractedLogs] = useState<ExtractedMedicineLog[]>(() => {
     const saved = readSaved(`${STORAGE_KEY}_extractedLogs`);
-    return Array.isArray(saved) ? saved : INITIAL_EXTRACTED_LOGS;
+    const logs: ExtractedMedicineLog[] = Array.isArray(saved) ? saved : INITIAL_EXTRACTED_LOGS;
+    return logs.map(log => ({...log, extractedMedicinesCount: log.extractedItems.length, matchedMedicinesCount: log.extractedItems.filter(item => item.matchStatus === 'matched').length}));
   });
 
   const [errorLogs, setErrorLogs] = useState<ErrorLog[]>(() => {
@@ -177,6 +183,16 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => persist(`${STORAGE_KEY}_pharmacies`, pharmacies), [pharmacies]);
   useEffect(() => persist(`${STORAGE_KEY}_suppliers`, suppliers), [suppliers]);
   useEffect(() => persist(`${STORAGE_KEY}_customers`, customers), [customers]);
+
+  const [supplierStores,setSupplierStores] = useState<typeof SUPPLIER_STORES>(() => {
+    const saved=readSaved(`${STORAGE_KEY}_supplierStores`);
+    return Array.isArray(saved)?saved:SUPPLIER_STORES;
+  });
+  useEffect(() => persist(`${STORAGE_KEY}_supplierStores`,supplierStores),[supplierStores]);
+  const toggleSupplierStoreStatus=(id:string) => {
+    setSupplierStores(rows=>rows.map(row=>row.id===id?{...row,status:row.status==='Approved'?'Blocked':'Approved'}:row));
+    showToast('success','Supplier updated','Changed the approval status in the mock supplier register.');
+  };
 
   const [isReleasePaused, setIsReleasePaused] = useState<boolean>(() => {
     const saved = readSaved(`${STORAGE_KEY}_releasePaused`);
@@ -256,7 +272,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // Create log record
     const newLog: MedicineMappingLog = {
-      id: `log-${Date.now()}`,
+      id: crypto.randomUUID(),
       orderNumber: mappingLogs.length + 1,
       supplierMedicine: item.supplierMedicineName,
       supplierMedicineCode: `#${Math.floor(1000000 + Math.random() * 900000)}`,
@@ -269,7 +285,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       changeDescription: `Mapping confirmed for ${item.selectedMapping}`,
       changedBy: 'Dr. Heba Admin',
       changedByRole: 'Admin',
-      changedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      changedAt: new Date().toLocaleString('sv-SE', {timeZone:'Africa/Cairo'}),
       reason: 'Pharmacist manual confirmation from mapping interface',
     };
 
@@ -301,7 +317,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       changeDescription: `Bulk accepted mapping confirmed by Admin`,
       changedBy: 'Dr. Heba Admin',
       changedByRole: 'Admin',
-      changedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      changedAt: new Date().toLocaleString('sv-SE', {timeZone:'Africa/Cairo'}),
       reason: 'Bulk confirmation of visible candidate mappings',
     }));
 
@@ -334,13 +350,13 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setCorrections((prev) =>
       prev.map((c) =>
-        c.id === id ? { ...c, currentMapping: newCurrentMapping, status: 'active', updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19) } : c
+        c.id === id ? { ...c, currentMapping: newCurrentMapping, status: 'active', updatedAt: new Date().toLocaleString('sv-SE', {timeZone:'Africa/Cairo'}) } : c
       )
     );
 
     // Record in mapping logs
     const newLog: MedicineMappingLog = {
-      id: `log-${Date.now()}`,
+      id: crypto.randomUUID(),
       orderNumber: mappingLogs.length + 1,
       supplierMedicine: target.supplierMedicineName,
       supplierMedicineCode: `#${Math.floor(1000000 + Math.random() * 900000)}`,
@@ -353,7 +369,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       changeDescription: `Corrected mapping via Correction Center`,
       changedBy: 'Dr. Heba Admin',
       changedByRole: 'Admin',
-      changedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      changedAt: new Date().toLocaleString('sv-SE', {timeZone:'Africa/Cairo'}),
       reason: 'Discrepancy adjustment updated by administrator',
     };
 
@@ -381,9 +397,9 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const addMappingLog = (log: Omit<MedicineMappingLog, 'id' | 'orderNumber' | 'changedAt'>) => {
     const newEntry: MedicineMappingLog = {
       ...log,
-      id: `log-${Date.now()}`,
+      id: crypto.randomUUID(),
       orderNumber: mappingLogs.length + 1,
-      changedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      changedAt: new Date().toLocaleString('sv-SE', {timeZone:'Africa/Cairo'}),
     };
     setMappingLogs((prev) => [newEntry, ...prev]);
   };
@@ -402,7 +418,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const record: ExtractedMedicineLog = {
       id, logId: `VOICE-${Date.now()}`, type: 'Audio', pharmacy: 'Demo Pharmacy - Nasr City', pharmacyId: 'DEMO-VOICE',
       extractedMedicinesCount: items.length, matchedMedicinesCount: accepted.length,
-      createdAt: new Date().toISOString().replace('T',' ').slice(0,19),
+      createdAt: new Date().toLocaleString('sv-SE', {timeZone:'Africa/Cairo'}),
       sourceDetails: { audioDuration: '00:03 (simulated)', dialectOrFormat: 'Egyptian Arabic demo transcript', deviceType: 'Pharmacy app demo' },
       extractedItems: items.map(({accepted, ...item}) => ({...item, acceptedQuantity: accepted ? item.acceptedQuantity : 0, matchStatus: accepted ? 'matched' : 'unmatched'})),
       reviewStatus: accepted.length ? 'Verified' : 'Rejected',
@@ -438,7 +454,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const addFeedbackRecord = (record: Omit<FeedbackRecord, 'id' | 'reportedDate'>) => {
     const newEntry: FeedbackRecord = {
       ...record,
-      id: `fb-${Date.now()}`,
+      id: crypto.randomUUID(),
       reportedDate: new Date().toISOString().substring(0, 10),
     };
     setFeedbackRecords((prev) => [newEntry, ...prev]);
@@ -473,7 +489,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const addPartner = (partner: Omit<PartnerDirectoryItem, 'id'>) => {
     const newEntry: PartnerDirectoryItem = {
       ...partner,
-      id: `part-${Date.now()}`,
+      id: crypto.randomUUID(),
     };
     setPartners((prev) => [...prev, newEntry]);
     showToast('success', 'Partner Added', `Registered partner ${partner.partnerName}`);
@@ -496,6 +512,7 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const resetDemoData = () => {
     Object.keys(localStorage).filter(key => key.startsWith(STORAGE_KEY)).forEach(key => localStorage.removeItem(key));
     setMappings(INITIAL_MEDICINE_MAPPINGS);
+    setSupplierStores(SUPPLIER_STORES);
     setCorrections(INITIAL_MEDICINE_CORRECTIONS);
     setMappingLogs(INITIAL_MAPPING_LOGS);
     setExtractedLogs(INITIAL_EXTRACTED_LOGS);
@@ -516,6 +533,8 @@ export const DemoDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <DemoDataContext.Provider
       value={{
+        supplierStores,
+        toggleSupplierStoreStatus,
         mappings,
         acceptMapping,
         acceptAllVisibleMappings,

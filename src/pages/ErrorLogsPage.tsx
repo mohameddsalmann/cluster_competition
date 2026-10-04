@@ -18,6 +18,7 @@ import { ErrorLog } from '../types';
 export const ErrorLogsPage: React.FC = () => {
   const { errorLogs, resolveError, unresolveError } = useDemoData();
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -186,6 +187,8 @@ export const ErrorLogsPage: React.FC = () => {
             </div>
           </div>
 
+          {selectedIds.length > 0 && <div className="px-4 py-3 border-b flex items-center gap-3 text-xs"><span>{selectedIds.length} selected</span><button onClick={() => {selectedIds.forEach(resolveError); setSelectedIds([]);}} className="cluster-button">Resolve selected</button><button onClick={() => setSelectedIds([])} className="text-slate-500">Clear selection</button></div>}
+
           {/* Table matching Screenshot 6 */}
           <div className="overflow-x-auto min-h-[350px]">
             <table className="w-full text-left border-collapse">
@@ -194,6 +197,9 @@ export const ErrorLogsPage: React.FC = () => {
                   <th className="py-3 px-3 w-10 text-center">
                     <input
                       type="checkbox"
+                      aria-label="Select all visible errors"
+                      checked={paginatedData.length > 0 && paginatedData.every(item => selectedIds.includes(item.id))}
+                      onChange={event => setSelectedIds(event.target.checked ? paginatedData.map(item => item.id) : [])}
                       className="w-4 h-4 rounded border-slate-300 text-[#0083cb] cursor-pointer"
                     />
                   </th>
@@ -228,6 +234,9 @@ export const ErrorLogsPage: React.FC = () => {
                         <td className="py-3 px-3 text-center">
                           <input
                             type="checkbox"
+                            aria-label={`Select error ${item.id}`}
+                            checked={selectedIds.includes(item.id)}
+                            onChange={() => setSelectedIds(ids => ids.includes(item.id) ? ids.filter(id => id !== item.id) : [...ids,item.id])}
                             className="w-4 h-4 rounded border-slate-300 text-[#0083cb] cursor-pointer"
                           />
                         </td>

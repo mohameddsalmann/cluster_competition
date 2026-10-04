@@ -86,7 +86,7 @@ export const MonitoringFeedbackPage: React.FC = () => {
             </div>
           </div>
           <span className="px-2.5 py-1 rounded bg-[#0083cb] text-white text-[11px] font-bold shadow-xs whitespace-nowrap">
-            Closed-Loop Verified
+            Illustrative feedback loop
           </span>
         </div>
 

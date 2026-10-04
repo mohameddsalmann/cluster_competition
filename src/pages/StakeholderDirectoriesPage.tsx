@@ -19,7 +19,7 @@ const choices: Record<string,string[]> = {
 function label(key: string) { return key.replace(/([A-Z])/g, ' $1').replace(/^./, char => char.toUpperCase()).replace('Name En','English name').replace('Name Ar','Arabic name'); }
 function values(row: DirectoryRecord) { return row as unknown as Record<string, string | number>; }
 
-export function StakeholderDirectoriesPage() {
+export function StakeholderDirectoriesPage({title = 'Stakeholder Directories'}: {title?:string}) {
   const data = useDemoData();
   const [active, setActive] = useState<DirectoryKind>('pharmacies');
   const [search, setSearch] = useState('');
@@ -55,7 +55,7 @@ export function StakeholderDirectoriesPage() {
     setDialog({...dialog, row: {...dialog.row, [key]: isNumber ? Number(value) : value} as DirectoryRecord});
   };
   return <div className="pb-12">
-    <PageHeader title="Stakeholder Directories" breadcrumbs={['Dashboard','Ecosystem','Directories']} actionSlot={<button className="cluster-button" onClick={openCreate}><Plus size={15}/> Add {active === 'pharmacies' ? 'pharmacy' : active.slice(0,-1)}</button>}/>
+    <PageHeader title={title} breadcrumbs={['Dashboard','Ecosystem','Directories']} actionSlot={<button className="cluster-button" onClick={openCreate}><Plus size={15}/> Add {active === 'pharmacies' ? 'pharmacy' : active.slice(0,-1)}</button>}/>
     <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-5">
       <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-xs text-sky-900">Pharmacies, suppliers, customers and collaboration partners. All records, organizations and contacts in this demo are fictional.</div>
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Directory categories">{tabs.map(tab => <button role="tab" aria-selected={active === tab.key} key={tab.key} onClick={() => {setActive(tab.key); setSearch(''); setFilter('all'); setPage(1);}} className={`flex items-center gap-2 text-xs font-semibold px-4 py-3 rounded-md border ${active === tab.key ? 'bg-[#0083cb] border-[#0083cb] text-white' : 'bg-white border-slate-200 text-slate-600'}`}><tab.icon size={16}/>{tab.label}<span className="opacity-70">{data[tab.key].length}</span></button>)}</div>

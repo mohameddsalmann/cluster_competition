@@ -57,3 +57,9 @@ main { scrollbar-gutter: stable; }
   main .min-w-\[280px\] { min-width: 0; }
   main .min-w-\[300px\] { min-width: 0; }
 }
+.overflow-x-auto > table { min-width: 900px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+.sidebar-navigation { scrollbar-width: thin; scrollbar-color: #386bb0 transparent; }

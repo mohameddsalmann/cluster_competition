@@ -1,0 +1,27 @@
+export const PORTAL_ORDERS = Array.from({length:285},(_,index)=>({
+  id:`ORD-${String(10400+index).padStart(6,'0')}`,
+  pharmacy:['Nile Community Pharmacy','Al Safa Pharmacy','Delta Care Pharmacy','Nasr Health Pharmacy','Alex Coast Pharmacy'][index%5],
+  supplier:['Nile Pharma Distribution','Delta Medical Supply','CareLink Pharma','Blue River Medicines'][index%4],
+  created:`2026-10-${String(4-index%4).padStart(2,'0')} ${String(8+index%10).padStart(2,'0')}:${String(index*7%60).padStart(2,'0')}`,
+  items:3+index%19,total:Math.round((850+index*83.25)*100)/100,
+  status:['Pending','Confirmed','Preparing','Delivered','Cancelled'][index%5],
+  type:index%7===0?'Deal':index%9===0?'Package':'Standard',
+}));
+export const SUPPLIER_STORES = [
+  ['Nile Pharma Distribution','أحمد منصور','Medicines',42765.50,28,'Approved','online'],
+  ['Delta Medical Supply','محمود سامي','Medicines',127980.25,97,'Approved','online'],
+  ['CareLink Pharma','كريم عادل','Medicines',28940.70,19,'Approved','online'],
+  ['Blue River Medicines','عمر مصطفى','Medicines',7245.30,5,'Approved','online'],
+  ['Lotus Cosmetics','سارة حسين','Cosmetics',0,0,'Blocked','offline'],
+  ['Nasr Pharma Hub','خالد هاني','Medicines',61920.15,36,'Approved','online'],
+  ['Horizon Medical Store','محمد عادل','Medicines',35482.60,23,'Approved','busy'],
+  ['Pure Care Cosmetics','نور أحمد','Cosmetics',46970.20,23,'Blocked','offline'],
+  ['Alex Coast Pharma','مينا فؤاد','Medicines',8640.75,4,'Approved','online'],
+  ['Green Valley Medical','ياسمين عمرو','Medicines',0,0,'Blocked','offline'],
+  ['Capital Health Supply','حسن كريم','Medicines',782450.90,418,'Approved','online'],
+  ['Prime Pharma Logistics','علي محمود','Medicines',19670.40,14,'Approved','online'],
+  ['Pearl Beauty Store','دينا هشام','Cosmetics',0,0,'Blocked','offline'],
+  ['East Cairo Pharma','طارق سعد','Medicines',13892.80,9,'Approved','online'],
+  ['Spring Medical Distribution','محمود ناصر','Medicines',0,0,'Blocked','offline'],
+  ['Mansoura Health Store','أحمد يوسف','Medicines',34810.55,22,'Approved','online'],
+].map((row,index)=>({id:`STORE-${index+1}`,storeName:String(row[0]),supplierName:String(row[1]),type:String(row[2]),total:Number(row[3]),invoices:Number(row[4]),status:String(row[5]),connection:String(row[6]),minimumCharge:[1000,900,1000,1200,1000,1500][index%6],updated:index%4===0?'Not updated':`2026-10-04 ${String(15+index%4)}:${String(12+index*3%47).padStart(2,'0')}:42`,recent:index%3===1}));

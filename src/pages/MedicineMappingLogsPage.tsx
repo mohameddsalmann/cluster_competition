@@ -12,6 +12,7 @@ import {
   FileCheck,
   ChevronDown,
 } from 'lucide-react';
+import { exportCsv } from '../utils/exportCsv';
 import { MedicineMappingLog } from '../types';
 
 export const MedicineMappingLogsPage: React.FC = () => {
@@ -118,13 +119,15 @@ export const MedicineMappingLogsPage: React.FC = () => {
                 </select>
               </div>
 
-              {/* Bulk Actions Dropdown (mock) */}
+              {/* Export selected audit records */}
               <div className="relative">
                 <button
                   type="button"
+                  disabled={selectedIds.length === 0}
+                  onClick={() => exportCsv('cluster-mapping-history.csv', mappingLogs.filter(log => selectedIds.includes(log.id)).map(log => ({...log})))}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f8fafc] border border-slate-200 rounded text-xs text-slate-700 hover:bg-slate-100"
                 >
-                  <span>Bulk Actions</span>
+                  <span>Export selected ({selectedIds.length})</span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </button>
               </div>

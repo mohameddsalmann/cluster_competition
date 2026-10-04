@@ -407,6 +407,7 @@ export const ExtractedMedicineLogsPage: React.FC = () => {
                     <AlertCircle className="w-3.5 h-3.5" />
                     <span>Mark Corrected</span>
                   </button>
+                  <button type="button" onClick={() => handleUpdateReviewStatus('Rejected')} className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded text-xs">Reject</button>
                 </div>
               </div>
             </div>

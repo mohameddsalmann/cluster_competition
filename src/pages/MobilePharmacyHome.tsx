@@ -116,7 +116,12 @@ export const MobilePharmacyHome: React.FC = () => {
 
   const handleCommitVoiceOrder = () => {
     const acceptedList = extractedItems.filter((i) => i.status === 'accepted');
-    if (acceptedList.length === 0) return;
+    if (acceptedList.length === 0) {
+      recordVoiceReview(extractedItems.map(item => ({rawText:item.nameAr, suggestedMatch:item.nameEn, confidence:item.confidence, acceptedQuantity:0, accepted:false})));
+      showToast('info', 'Voice order rejected', 'The pharmacist rejected all suggestions. The decision was logged.');
+      setVoiceState('idle');
+      return;
+    }
 
     addToMobileCart(
       acceptedList.map((item) => ({
@@ -302,7 +307,7 @@ export const MobilePharmacyHome: React.FC = () => {
           </div>
         </div>
 
-        {panel && <div className="absolute inset-0 z-30 bg-slate-900/40 flex items-end"><section role="dialog" aria-modal="true" aria-label="Pharmacy app panel" dir="rtl" className="bg-white w-full rounded-t-2xl p-5 max-h-[80%] overflow-auto text-sm"><div className="flex justify-between mb-4"><strong>{({menu:'القائمة',notifications:'الإشعارات',orders:'الطلبيات التجريبية',suppliers:'الموردين',profile:'حساب الصيدلية'})[panel]}</strong><button aria-label="Close pharmacy panel" onClick={() => setPanel(null)}><X size={18}/></button></div>
+        {panel && <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4"><section role="dialog" aria-modal="true" aria-label="Pharmacy app panel" dir="rtl" className="bg-white w-full max-w-[420px] rounded-2xl p-5 max-h-[85dvh] overflow-auto text-sm"><div className="flex justify-between mb-4"><strong>{({menu:'القائمة',notifications:'الإشعارات',orders:'الطلبيات التجريبية',suppliers:'الموردين',profile:'حساب الصيدلية'})[panel]}</strong><button aria-label="Close pharmacy panel" onClick={() => setPanel(null)}><X size={18}/></button></div>
           {panel === 'menu' && <div className="grid gap-2">{(['orders','suppliers','profile'] as const).map(value => <button className="p-3 bg-sky-50 rounded text-right" key={value} onClick={() => setPanel(value)}>{({orders:'الطلبيات',suppliers:'الموردين',profile:'حسابي'})[value]}</button>)}</div>}
           {panel === 'notifications' && <p className="bg-sky-50 p-3 rounded">كلارا جاهزة لمراجعة الطلبات الصوتية. جميع الإشعارات والبيانات تجريبية.</p>}
           {panel === 'orders' && orders.map(order => <div className="border rounded p-3 mb-2" key={order.id}><strong dir="ltr">{order.id}</strong><p className="text-xs text-slate-500 mt-1">{order.status} · {order.total.toFixed(2)} ج.م</p></div>)}
@@ -459,6 +464,7 @@ export const MobilePharmacyHome: React.FC = () => {
                               <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-0.5">
                                 <button
                                   type="button"
+                                  aria-label={`Decrease ${item.nameEn} quantity`}
                                   onClick={() => handleQuantityChange(item.id, -1)}
                                   className="w-6 h-6 rounded bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center font-bold"
                                 >
@@ -469,6 +475,7 @@ export const MobilePharmacyHome: React.FC = () => {
                                 </span>
                                 <button
                                   type="button"
+                                  aria-label={`Increase ${item.nameEn} quantity`}
                                   onClick={() => handleQuantityChange(item.id, 1)}
                                   className="w-6 h-6 rounded bg-white text-slate-700 hover:bg-slate-200 flex items-center justify-center font-bold"
                                 >

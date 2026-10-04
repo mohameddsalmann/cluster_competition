@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useDemoData } from '../context/DemoDataContext';
 import { Check, RotateCcw, ShieldCheck } from 'lucide-react';
@@ -6,9 +6,12 @@ import { RoleGroupPermission } from '../types';
 
 export const RolesPermissionsPage: React.FC = () => {
   const { roles, updateRolePermissions } = useDemoData();
-  const currentRole = roles[0]; // Super Admin
+  const [roleId, setRoleId] = useState(roles[0].id);
+  const currentRole = roles.find(role => role.id === roleId) || roles[0];
 
   const [groups, setGroups] = useState<RoleGroupPermission[]>(currentRole.groups);
+
+  useEffect(() => setGroups(currentRole.groups), [currentRole]);
 
   // Toggle individual permission
   const handleTogglePermission = (groupKey: string, permId: string) => {
@@ -102,7 +105,7 @@ export const RolesPermissionsPage: React.FC = () => {
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <ShieldCheck className="w-4 h-4 text-[#0083cb]" />
               <span>
-                Role: <strong className="text-slate-800">{currentRole.name}</strong> ({currentRole.userCount} active users)
+                Role: <select aria-label="Role to edit" value={roleId} onChange={event => setRoleId(event.target.value)} className="border rounded px-2 py-1 text-slate-800">{roles.map(role => <option key={role.id} value={role.id}>{role.name}</option>)}</select> ({currentRole.userCount} demo users)
               </span>
             </div>
           </div>
