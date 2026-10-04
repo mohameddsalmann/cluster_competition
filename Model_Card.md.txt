@@ -1,0 +1,57 @@
+# Model Card: Arabic Pharma-Match (Fine-tuned Jina-v3)
+
+## Model Details
+
+* **Developer:** Mohammed Mohsen (AI Engineer)
+* **Model Type:** Sentence Transformer / Embedding Model
+* **Base Model:** `jina-embeddings-v3`
+* **Language(s):** Arabic, English (Mixed pharmaceutical nomenclature)
+* **Training Framework:** `sentence-transformers`, `PyTorch`
+* **Status:** Trained & Validated (Final Model Saved)
+
+## Intended Use
+
+* **Primary Task:** Semantic Text Matching for pharmaceutical products.
+* **Target Application:** Reconciling supplier medicine lists with a standardized system master list for the "Cluster" ERP ecosystem.
+* **Out-of-Scope:** Clinical diagnosis or prescription recommendations.
+
+## Training Methodology
+
+The model was fine-tuned using a **Triplet Loss** objective. It maximizes cosine similarity between standard medicine names (Anchors) and supplier variations (Positives), while pushing away visually similar but pharmacologically different products (Hard Negatives).
+
+### Training Pipeline:
+
+1. **Dataset:** 45,724 training samples derived from 37,597 medicines and their supplier variations.
+2. **Hard Negative Mining:** Integrated `rapidfuzz` to ensure the model distinguishes between highly similar text strings.
+3. **Cross-Validation:** 5-Fold K-Fold strategy used to ensure stability across the dataset.
+
+## Training Results & Metrics
+
+The model demonstrated consistent improvement and high precision across all folds.
+
+### Final Performance Metrics:
+
+| Metric | Value |
+| --- | --- |
+| **Best Validation Accuracy (Cosine)** | **99.31%** (Fold 0, Epoch 6) |
+| **Average Training Loss (Final Phase)** | **~0.095** |
+| **Total Training Epochs** | 7 |
+| **Samples Processed** | 45,724 |
+
+### Epoch Performance Summary:
+
+* **Initial Epoch:** Started strong with **98.79%** accuracy.
+* **Peak Performance:** Reached **99.31%** in Epoch 6.
+* **Convergence:** Final training on the full dataset achieved a low training loss of **0.0973**, suggesting the model has generalized well without significant overfitting.
+
+## Factors & Limitations
+
+* **Domain Sensitivity:** Highly optimized for Egyptian pharmaceutical nomenclature.
+* **Robustness:** Includes data augmentation (word dropout/char noise), making it resistant to common data entry typos found in supplier invoices.
+* **Execution:** Final model weights are stored in `./saved_models/final_model`.
+
+## Evaluation
+
+The success metric used was `cosine_accuracy` within a `TripletEvaluator`, which confirms that in 99.31% of cases, the model correctly placed the matching product closer in vector space than the incorrect "hard negative" product.
+
+---
